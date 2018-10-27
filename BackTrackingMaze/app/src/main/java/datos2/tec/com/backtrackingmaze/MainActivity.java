@@ -1,22 +1,14 @@
 package datos2.tec.com.backtrackingmaze;
 
-import android.content.Context;
+
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.app.Activity;
 import android.graphics.Color;
 import android.widget.Button;
 import android.widget.Toast;
-
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.Thread.sleep;
-
 
 public class MainActivity extends Activity {
     RelativeLayout myRelativeLayout;
@@ -178,6 +170,7 @@ public class MainActivity extends Activity {
                                 genButton.setClickable(true);
                                 startButton.setEnabled(false);
                                 startButton.setClickable(false);
+                                Toast.makeText(MainActivity.this,"Backtracking Solution",Toast.LENGTH_LONG).show();
                             }
                         });
                         stopThread(this, genButton);
