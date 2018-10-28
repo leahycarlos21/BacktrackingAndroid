@@ -2,12 +2,16 @@ package datos2.tec.com.backtrackingmaze;
 
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.app.Activity;
 import android.graphics.Color;
 import android.widget.Button;
 import android.widget.Toast;
+
 import java.util.Random;
 
 public class MainActivity extends Activity {
@@ -23,6 +27,8 @@ public class MainActivity extends Activity {
                 pos++;
             }
         }
+        matrixButtons[matrixButtons.length - 1].setBackgroundResource(R.drawable.ugandaflag);
+
     }
 
     public int[][] getMatrixRandom() {
@@ -44,9 +50,9 @@ public class MainActivity extends Activity {
         final int matriz3[][] = {
                 {1, 1, 1, 1, 1, 1, 0, 0},
                 {0, 1, 0, 0, 0, 1, 1, 0},
-                {1, 1, 0, 0, 0, 0, 1, 0},
-                {1, 0, 0, 0, 1, 1, 1, 1},
-                {1, 1, 1, 0, 1, 0, 0, 1},
+                {0, 1, 0, 0, 0, 0, 1, 0},
+                {0, 1, 0, 0, 1, 1, 1, 1},
+                {0, 1, 1, 0, 1, 0, 0, 1},
         };
         final int matriz4[][] = {
                 {1, 1, 1, 1, 1, 0, 0, 0},
@@ -85,13 +91,15 @@ public class MainActivity extends Activity {
 
     public Button paintButton_MatrixAux(int data, Button button) {
         Button finalButton = button;
-        if (data == 1)
-            finalButton.setBackgroundColor(Color.GREEN);
-        else if (data == 2) {
-            finalButton.setBackgroundColor(Color.YELLOW);
 
-        } else
-            finalButton.setBackgroundColor(Color.GRAY);
+
+        if (data == 1) {
+            finalButton.setBackgroundResource(R.drawable.grasspixel);
+
+
+        } else {
+            finalButton.setBackgroundResource(R.drawable.wood2);
+        }
         return finalButton;
     }
 
@@ -117,7 +125,7 @@ public class MainActivity extends Activity {
         genButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                genButton.setBackgroundColor(Color.GREEN);
+                genButton.setBackgroundColor(Color.GRAY);
                 int[][] auxMatrix = matriz[0];
                 while (auxMatrix == matriz[0]) {
                     auxMatrix = getMatrixRandom();
@@ -135,7 +143,7 @@ public class MainActivity extends Activity {
             @Override
 
             public void onClick(View view) {
-                startButton.setBackgroundColor(Color.BLUE);
+                startButton.setBackgroundColor(Color.GRAY);
                 genButton.setEnabled(false);
                 genButton.setClickable(false);
                 paintButton_Matrix(matriz[0], matrixButtons);
@@ -144,19 +152,25 @@ public class MainActivity extends Activity {
                 mThread = new Thread() {
                     public void run() {
                         int pos = 0;
-                        paintButton_Matrix(matriz[0], matrixButtons);
-                        Backtracking backtracking = new Backtracking();
+                        final Backtracking backtracking = new Backtracking();
                         backtracking.busquedaCamino(matriz[0]);
+
                         while (pos < backtracking.myList.size()) {
-
-
                             int posX = backtracking.myList.get(pos).getPosXY().x;
                             int posY = backtracking.myList.get(pos).getPosXY().y;
-                            int posfinal = (posY + (8 * posX));
+                            final int posfinal = (posY + (8 * posX));
+                            final int finalPos = pos;
 
-                            paintButton(matrixButtons[posfinal], backtracking.myList.get(pos).isState());
+                            /**Se requiere para poder modificar el boton dentro de un thread**/
+                            Handler handler = new Handler(Looper.getMainLooper()) {
+                                @Override
+                                public void handleMessage(Message msg) {
+                                    paintButton(matrixButtons[posfinal], backtracking.myList.get(finalPos).isState());
+                                }
+                            };
+                            handler.sendEmptyMessage(1);
                             try {
-                                sleep(1000);
+                                sleep(1000); //Lo hace esperar 1 segundo para seguir pintando
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -170,7 +184,7 @@ public class MainActivity extends Activity {
                                 genButton.setClickable(true);
                                 startButton.setEnabled(false);
                                 startButton.setClickable(false);
-                                Toast.makeText(MainActivity.this,"Backtracking Solution",Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, "Backtracking Solution and DO U KNOW DA WAE", Toast.LENGTH_LONG).show();
                             }
                         });
                         stopThread(this, genButton);
@@ -179,23 +193,26 @@ public class MainActivity extends Activity {
                     }
                 };
                 mThread.start();
-
             }
         });
     }
-
+    /**Se requiere para parar el thread y que no siga corriendo*/
     private synchronized void stopThread(Thread theThread, Button button) {
         if (theThread != null) {
             theThread = null;
         }
     }
 
-
+    /**
+     * Cambia la imagen de la figura si hay o no camino
+     */
     void paintButton(Button button, boolean state) {
         if (state == true) {
-            button.setBackgroundColor(Color.BLUE);
+            button.setBackgroundResource(R.drawable.ugandawarrior);
+
         } else {
-            button.setBackgroundColor(Color.GREEN);
+            button.setBackgroundResource(R.drawable.grasspixel);
+
         }
     }
 }
